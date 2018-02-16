@@ -14,14 +14,14 @@ float b = 28;
 float c = 8.f / 3.f;
 
 // window
-const unsigned int WIDTH = 800, HEIGHT = 800;
+const unsigned int SIZE = 800;
 
 // trace
-const unsigned int TRACE = 5000;
+const unsigned int TRACE = 1000;
 
 int main()
 {
-	RenderWindow window(VideoMode(WIDTH, HEIGHT), "Lorenz Attractor");
+	RenderWindow window(VideoMode(SIZE, SIZE), "Lorenz Attractor");
 
 	window.setFramerateLimit(60);
 
@@ -29,7 +29,7 @@ int main()
 	circle.setRadius(2);
 
 	// tracing
-	Vector2f point[TRACE];
+	Vector3f point[TRACE];
 	int count = 0;
 
 	while (window.isOpen())
@@ -41,26 +41,35 @@ int main()
 
 		// get data 
 		float dt = 0.01;
-		float dx = (a * (y - x)) * dt;
-		float dy = (x * (b - z) - y) * dt;
-		float dz = (x * y - c * z) * dt;
+		float dx = a * (y - x);
+		float dy = x * (b - z) - y;
+		float dz = x * y - c * z;
 
-		x += dx;
-		y += dy;
-		z += dz;
+		x += dx * dt;
+		y += dy * dt;
+		z += dz * dt;
 
-		point[count].x = WIDTH / 2 + x * 10;
-		point[count].y = HEIGHT / 2 + y * 10;
-		count++;
+		// store trace
+		point[count++] = {x, y, z};
+
 		if (count >= TRACE)
 			count = 0;
 
 		///drawing///
 		window.clear();
 		// draw all cicle
-		for (Vector2f p : point)
+		for (Vector3f p : point)
 		{
-			circle.setPosition(p);
+			// simulate 3d on 2d
+			float pxy = SIZE / 2 + sqrt(p.x*p.x + p.y*p.y) * 5;
+			float pxz = SIZE / 2 + sqrt(p.x*p.x + p.z*p.z) * 5;
+			float pyz = SIZE / 2 + sqrt(p.y*p.y + p.z*p.z) * 5;
+
+			float px = SIZE / 2 + p.x * 5;
+			float py = SIZE / 2 + p.y * 5;
+			float pz = SIZE / 2 + p.z * 5;
+
+			circle.setPosition(pxz, py);
 			window.draw(circle);
 		}
 
