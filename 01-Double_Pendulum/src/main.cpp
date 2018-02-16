@@ -1,6 +1,5 @@
 #include <SFML/Graphics.hpp>
 #include <math.h>
-#include <iostream>
 
 #define Sin(x) std::sin(x)
 #define Cos(x) std::cos(x)
@@ -15,16 +14,16 @@ using namespace sf;
 const unsigned int WIDTH = 900, HEIGHT = 600;
 
 // first object
-float L1 = 100;
-float M1 = 40;
-float A1 = PI / 2;
+float L1 = 200;
+float M1 = 30;
+float A1 = 3 * PI / 4;
 float A1_v = 0;
 float A1_a = 0;
 
 // second object
 float L2 = 200;
-float M2 = 60;
-float A2 = PI / 2;
+float M2 = 70;
+float A2 = 7 * PI / 8;
 float A2_v = 0;
 float A2_a = 0;
 
@@ -113,7 +112,8 @@ int main()
 
 		// calculate angular aceleration
 		A2_a = Pow2(A1_v) * L1 * (M1 + M2);
-		A2_a += G * (M1 + M2) * Cos(A1) + Pow2(A2_v) * L2 * M2 * Cos(A1 - A2);
+		A2_a += G * (M1 + M2) * Cos(A1);
+		A2_a += Pow2(A2_v) * L2 * M2 * Cos(A1 - A2);
 		A2_a *= 2 * Sin(A1 - A2);
 		A2_a /= L2 * (2 * M1 + M2 - M2 * Cos(2 * A1 - 2 * A2));
 
@@ -126,6 +126,11 @@ int main()
 		points[count++] = line2[1].position;
 		if (count >= trace) // override old points
 			count = 0;
+
+
+		//////Stoping/////
+		A1_v *= 0.999;
+		A2_v *= 0.999;
 
 		////DRAWING/////
 		window.clear();
