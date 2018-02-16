@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 using namespace sf;
 
@@ -15,7 +14,10 @@ float b = 28;
 float c = 8.f / 3.f;
 
 // window
-const int WIDTH = 600, HEIGHT = 500;
+const unsigned int WIDTH = 800, HEIGHT = 800;
+
+// trace
+const unsigned int TRACE = 5000;
 
 int main()
 {
@@ -25,6 +27,10 @@ int main()
 
 	CircleShape circle;
 	circle.setRadius(2);
+
+	// tracing
+	Vector2f point[TRACE];
+	int count = 0;
 
 	while (window.isOpen())
 	{
@@ -43,14 +49,22 @@ int main()
 		y += dy;
 		z += dz;
 
-		circle.setPosition(WIDTH / 2 + x, HEIGHT / 2 + y);
-		window.draw(circle);
+		point[count].x = WIDTH / 2 + x * 10;
+		point[count].y = HEIGHT / 2 + y * 10;
+		count++;
+		if (count >= TRACE)
+			count = 0;
 
 		///drawing///
+		window.clear();
+		// draw all cicle
+		for (Vector2f p : point)
+		{
+			circle.setPosition(p);
+			window.draw(circle);
+		}
+
 		window.display();
-
-
-		std::cout << x << ", " << y << ", " << z << "\n";
 	}
 
 
