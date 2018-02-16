@@ -15,7 +15,7 @@ using namespace sf;
 const unsigned int WIDTH = 900, HEIGHT = 600;
 
 // first object
-float L1 = 200;
+float L1 = 100;
 float M1 = 40;
 float A1 = PI / 2;
 float A1_v = 0;
@@ -23,7 +23,7 @@ float A1_a = 0;
 
 // second object
 float L2 = 200;
-float M2 = 40;
+float M2 = 60;
 float A2 = PI / 2;
 float A2_v = 0;
 float A2_a = 0;
@@ -31,10 +31,8 @@ float A2_a = 0;
 // enviroment
 float G = 0.98; // gravity
 
-struct Point
-{
-	float x, y;
-};
+// tracing
+const int trace = 300;
 
 int main()
 {
@@ -63,11 +61,12 @@ int main()
 
 
 	//////tracing///////
-	const int trace = 300;
 	CircleShape point;
 	point.setRadius(1);
 	Vertex points[trace];
-	int count = 0, count2 = 0; // for trace
+	int count = 0; // for trace
+	for (Vertex p : points)
+		p.position = {-100,-100}; // initialize points
 
 
 	/////window loop///////
@@ -124,14 +123,9 @@ int main()
 
 
 		////Tracing///
-		if (count < trace)
-			points[count++] = line2[1].position;
-		else
-		{
-			points[count2++] = line2[1].position;
-			if (count2 >= trace)
-				count2 = 0;
-		}
+		points[count++] = line2[1].position;
+		if (count >= trace) // override old points
+			count = 0;
 
 		////DRAWING/////
 		window.clear();
@@ -140,9 +134,9 @@ int main()
 		window.draw(line2, 2, Lines);
 		window.draw(circle2);
 
-		for (int i = 0; i < trace; i++)
+		for (Vertex p : points)
 		{
-			point.setPosition(points[i].position);
+			point.setPosition(p.position);
 			window.draw(point);
 		}
 
