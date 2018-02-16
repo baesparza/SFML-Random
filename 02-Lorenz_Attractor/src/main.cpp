@@ -17,7 +17,19 @@ float c = 8.f / 3.f;
 const unsigned int SIZE = 800;
 
 // trace
-const unsigned int TRACE = 1000;
+struct Trace
+{
+	Vector3f position3D;
+	Vector2f position2D;
+	Trace * next;
+	Trace(Vector3f v) : position3D(v)
+	{
+		float pyz = 3 * SIZE / 4 - sqrt(pow(position3D.y, 2) + pow(position3D.z, 2)) * 8;
+		position2D = {SIZE / 2 + x * 8, pyz};
+	}
+};
+
+
 
 int main()
 {
@@ -29,8 +41,7 @@ int main()
 	circle.setRadius(2);
 
 	// tracing
-	Vector3f point[TRACE];
-	int count = 0;
+	Trace * trace = nullptr;
 
 	while (window.isOpen())
 	{
@@ -50,26 +61,17 @@ int main()
 		z += dz * dt;
 
 		// store trace
-		point[count++] = {x, y, z};
-
-		if (count >= TRACE)
-			count = 0;
+		Trace * t = new Trace({x, y, z});
+		t->next = trace; // replace origin
+		trace = t;
 
 		///drawing///
 		window.clear();
 		// draw all cicle
-		for (Vector3f p : point)
+		for (Trace * curr = trace; curr != nullptr; curr = curr->next)
 		{
-			// simulate 3d on 2d
-			float pxy = SIZE / 2 + sqrt(p.x*p.x + p.y*p.y) * 5;
-			float pxz = SIZE / 2 + sqrt(p.x*p.x + p.z*p.z) * 5;
-			float pyz = SIZE / 2 + sqrt(p.y*p.y + p.z*p.z) * 5;
-
-			float px = SIZE / 2 + p.x * 5;
-			float py = SIZE / 2 + p.y * 5;
-			float pz = SIZE / 2 + p.z * 5;
-
-			circle.setPosition(pxz, py);
+			circle.setPosition(curr->position2D);
+			circle.setFillColor(Color(curr->position2D.x, 0, curr->position2D.y));
 			window.draw(circle);
 		}
 
