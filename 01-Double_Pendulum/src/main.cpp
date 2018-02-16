@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <math.h>
+#include <iostream>
 
 #define Sin(x) std::sin(x)
 #define Cos(x) std::cos(x)
@@ -11,38 +12,40 @@ using namespace sf;
 
 /////options/////
 // window
-const unsigned int WIDTH = 600, HEIGHT = 600;
+const unsigned int WIDTH = 900, HEIGHT = 600;
 
 // first object
 float L1 = 200;
 float M1 = 40;
-float A1 = PI / 4;
+float A1 = PI / 2;
 float A1_v = 0;
 float A1_a = 0;
 
 // second object
 float L2 = 200;
 float M2 = 40;
-float A2 = PI / 8;
+float A2 = PI / 2;
 float A2_v = 0;
 float A2_a = 0;
 
 // enviroment
-float G = 1; // gravity
+float G = 0.98; // gravity
 
+struct Point
+{
+	float x, y;
+};
 
 int main()
 {
-	ContextSettings settings;
-	settings.antialiasingLevel = 0;
-
-	RenderWindow window(VideoMode(WIDTH, HEIGHT), "Double Pendulum", Style::Default, settings);
+	RenderWindow window(VideoMode(WIDTH, HEIGHT), "Double Pendulum");
 	window.setFramerateLimit(60);
 
 
 	// center plane
 	float x = WIDTH / 2;
 	float y = 100;
+
 
 	//figure 1 setup
 	Vertex line1[2];
@@ -51,11 +54,20 @@ int main()
 	CircleShape circle1(M1 / 2);
 	circle1.setOrigin(M1 / 2, M1 / 2); // set origin the center of circle
 
+
 	//figure 2 setup
 	Vertex line2[2];
 
 	CircleShape circle2(M2 / 2);
 	circle2.setOrigin(M2 / 2, M2 / 2); // set origin the center of circle
+
+
+	//////tracing///////
+	const int trace = 300;
+	CircleShape point;
+	point.setRadius(1);
+	Vertex points[trace];
+	int count = 0, count2 = 0; // for trace
 
 
 	/////window loop///////
@@ -111,12 +123,30 @@ int main()
 		A2 += A2_v;
 
 
+		////Tracing///
+		if (count < trace)
+			points[count++] = line2[1].position;
+		else
+		{
+			points[count2++] = line2[1].position;
+			if (count2 >= trace)
+				count2 = 0;
+		}
+
 		////DRAWING/////
 		window.clear();
 		window.draw(line1, 2, Lines);
 		window.draw(circle1);
 		window.draw(line2, 2, Lines);
 		window.draw(circle2);
+
+		for (int i = 0; i < trace; i++)
+		{
+			point.setPosition(points[i].position);
+			window.draw(point);
+		}
+
+
 		window.display();
 
 	}
