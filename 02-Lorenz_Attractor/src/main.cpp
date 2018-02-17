@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 using namespace sf;
 
@@ -16,16 +17,26 @@ float c = 8.f / 3.f;
 // window
 const unsigned int SIZE = 800;
 
+float angle = 0.001;
+
 // trace
 struct Trace
 {
-	Vector3f position3D;
-	Vector2f position2D;
+	Vector3f position;
 	Trace * next;
-	Trace(Vector3f v) : position3D(v)
+
+	Trace(Vector3f v) : position(v)
 	{
-		float pyz = 3 * SIZE / 4 - sqrt(pow(position3D.y, 2) + pow(position3D.z, 2)) * 8;
-		position2D = {SIZE / 2 + x * 8, pyz};
+	}
+
+	Vector2f getPosition()
+	{
+		// simulate 3d
+		float pxz = sqrt(pow(position.x, 2) + pow(position.z, 2));
+		// get angle with both pos
+		float a = atan(position.x / position.z);
+		float px = pxz * cos(a + angle);
+		return {SIZE / 2 + px * 5, SIZE / 2 + position.y * 5};
 	}
 };
 
@@ -70,12 +81,12 @@ int main()
 		// draw all cicle
 		for (Trace * curr = trace; curr != nullptr; curr = curr->next)
 		{
-			circle.setPosition(curr->position2D);
-			circle.setFillColor(Color(curr->position2D.x, 0, curr->position2D.y));
+			circle.setPosition(curr->getPosition());
 			window.draw(circle);
 		}
 
 		window.display();
+		angle += 0.01;
 	}
 
 
