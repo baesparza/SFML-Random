@@ -4,11 +4,16 @@
 // dependencies
 #include <SFML\Graphics.hpp>
 
+// macros
+# define num_points 14 // number of points
+
 using namespace sf;
 
+/////////////////////code//////////////////////////////
+
 int bestDistance = 0; // min distance
-std::array<Vector2f, 5> points; // points
-std::array<Vector2f, 5> bestPoints; // points
+std::array<Vector2f, num_points> points; // points
+std::array<Vector2f, num_points> bestPoints; // points
 
 CircleShape circle;
 Vertex line[2];
@@ -17,6 +22,15 @@ Vertex line[2];
 int getDistance(int x1, int y1, int x2, int y2)
 {
 	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+}
+
+// basic func to swap random items
+void swap() {
+	int rand1 = rand() % points.size();
+	int rand2 = rand() % points.size();
+	Vector2f temp = points[rand1];
+	points[rand1] = points[rand2];
+	points[rand2] = temp;
 }
 
 void setup(RenderWindow & app)
@@ -43,6 +57,9 @@ void setup(RenderWindow & app)
 void draw(RenderWindow & app)
 {
 	int tempDist = 0;
+	/////swap/////
+	swap();
+
 
 	/////actual points///
 	// display points
@@ -77,11 +94,12 @@ void draw(RenderWindow & app)
 		app.draw(line, 3, Lines);
 	}
 
+	///////best distance////////
 	// found better distance
 	if (tempDist < bestDistance)
 	{
 		bestDistance = tempDist; // save distance
-		for (int i = 0; i < points.size() - 1; i++)
+		for (int i = 0; i < points.size(); i++)
 		{
 			bestPoints[i].x = points[i].x;
 			bestPoints[i].y = points[i].y + app.getSize().y / 2; // middle down
