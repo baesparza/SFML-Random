@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01-Double_Pendulum", "01-Do
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "02-Lorenz_Attractor", "02-Lorenz_Attractor\02-Lorenz_Attractor.vcxproj", "{EB7094A1-F385-4C00-8C30-F2EB3A2323AD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03-Travelling_Salesman_Problem", "03-Travelling_Salesman_Problem\03-Travelling_Salesman_Problem.vcxproj", "{AC42C31F-D9AA-40FA-91A4-2A463B8936AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{EB7094A1-F385-4C00-8C30-F2EB3A2323AD}.Debug|x64.Build.0 = Debug|x64
 		{EB7094A1-F385-4C00-8C30-F2EB3A2323AD}.Release|x64.ActiveCfg = Release|x64
 		{EB7094A1-F385-4C00-8C30-F2EB3A2323AD}.Release|x64.Build.0 = Release|x64
+		{AC42C31F-D9AA-40FA-91A4-2A463B8936AB}.Debug|x64.ActiveCfg = Debug|x64
+		{AC42C31F-D9AA-40FA-91A4-2A463B8936AB}.Debug|x64.Build.0 = Debug|x64
+		{AC42C31F-D9AA-40FA-91A4-2A463B8936AB}.Release|x64.ActiveCfg = Release|x64
+		{AC42C31F-D9AA-40FA-91A4-2A463B8936AB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
