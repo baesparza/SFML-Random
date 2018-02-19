@@ -4,11 +4,13 @@ using namespace sf;
 
 // declarations
 void setup(RenderWindow &);
-void draw(RenderWindow &);
+void draw(RenderWindow &, bool &);
 
 
 // window
 const int SIZE = 800;
+
+bool finished = false;
 
 int main()
 {
@@ -27,11 +29,15 @@ int main()
 			if (e.type == Event::Closed)
 				app.close();
 
+		if (finished) // stop searching
+			break;
+
 		app.clear();
 
-		draw(app);
+		draw(app, finished);
 
 		app.display();
 	}
+
 	return 0;
 }

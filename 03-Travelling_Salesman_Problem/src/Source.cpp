@@ -3,53 +3,51 @@
 
 #include <SFML\Graphics.hpp>
 
-# define num_points 4 // number of points
+# define num_points 7 // number of points
 
 using namespace sf;
 
-/////////////////////code//////////////////////////////
 
 int bestDistance = 0; // min distance
 
-std::array<Vector2f, num_points> points; // points
-std::array<Vector2f, num_points> bestPoints; // store best distance points
+std::array<Vector2f, num_points> positions; // points
+std::array<int, num_points> bestPemutation; // store best permutations points
 std::array<int, num_points> permutations; // permutations
 
 CircleShape circle;
 Vertex line[2];
 
 // function to get distance using pitagoras
-int getDistance(int x1, int y1, int x2, int y2)
+int getDistance(const Vector2f &  v1, const Vector2f & v2 )
 {
-	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+	return sqrt(pow(v2.x - v1.x, 2) + pow(v2.y - v1.y, 2));
 }
 
 // store best distance
-void storeBestDistance(int tempDist, int ofset)
+void storeBestPermutation(int tempDist)
 {
 	bestDistance = tempDist; // save best distance
-	for (int i = 0; i < points.size(); i++)
+	for (int i = 0; i < permutations.size(); i++)
 	{
-		bestPoints[i].x = points[i].x;
-		bestPoints[i].y = points[i].y + ofset; // middle down
+		bestPemutation[i] = permutations[i];
 	}
 	std::cout << bestDistance << "\n";
 }
 
 // draw best distance
-void drawBestDistance(RenderWindow & app)
+void drawBestPermutation(RenderWindow & app)
 {
 	// draw circle
-	for (int i = 0; i < bestPoints.size(); i++)
+	for (int i = 0; i < positions.size(); i++)
 	{
-		circle.setPosition(bestPoints[i].x, bestPoints[i].y);
+		circle.setPosition(positions[bestPemutation[i]].x, positions[bestPemutation[i]].y + app.getSize().y / 2);
 		app.draw(circle);
 	}
 	// conect with lines
-	for (int i = 0; i < bestPoints.size() - 1; i++)
+	for (int i = 0; i < positions.size() - 1; i++)
 	{
-		line[0].position = {bestPoints[i].x, bestPoints[i].y};
-		line[1].position = {bestPoints[i + 1].x, bestPoints[i + 1].y};
+		line[0].position = {positions[bestPemutation[i]].x, positions[bestPemutation[i]].y + app.getSize().y / 2};
+		line[1].position = {positions[bestPemutation[i + 1]].x, positions[bestPemutation[i + 1]].y + app.getSize().y / 2};
 		app.draw(line, 3, Lines);
 	}
 }
@@ -60,24 +58,58 @@ int drawActualPoints(RenderWindow & app)
 	int tempDist = 0; // distance
 
 	// display points
-	for (int i = 0; i < points.size(); i++)
+	for (int i = 0; i < positions.size(); i++)
 	{
-		circle.setPosition(points[i].x, points[i].y);
+		circle.setPosition(positions[permutations[i]]);
 		app.draw(circle);
 	}
 
-	for (int i = 0; i < points.size() - 1; i++)
+	for (int i = 0; i < positions.size() - 1; i++)
 	{
 		// calc distance between points
-		tempDist += getDistance(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+		tempDist += getDistance(positions[permutations[i]], positions[permutations[i + 1]]);
 
 		// conect points with lines
-		line[0].position = {points[i].x, points[i].y};
-		line[1].position = {points[i + 1].x, points[i + 1].y};
+		line[0].position = positions[permutations[i]];
+		line[1].position = positions[permutations[i + 1]];
 		app.draw(line, 2, Lines);
 	}
-
+	//	std::cout << "[temp]: " << tempDist << "\n";
 	return tempDist;
+}
+
+void permutate(bool & finished)
+{
+	// print array
+	//	for (int n : permutations)
+	//		std::cout << n << ", ";
+	//	std::cout << "\n";
+
+	// 1. Find the largest x such that P[x]<P[x+1].
+	// (If there is no such x, P is the last permutation.)
+	int smalestX = -1;
+	for (int i = 0; i < permutations.size() - 1; i++)
+		if (permutations[i] < permutations[i + 1])
+			smalestX = i;
+	if (smalestX == -1)
+	{
+		finished = true;
+		return;
+	}
+
+	// 2.Find the largest y such that P[x]<P[y].
+	int smalestY = -1;
+	for (int i = 0; i < permutations.size(); i++)
+		if (permutations[smalestX] < permutations[i])
+			smalestY = i;
+
+	// 3.Swap P[x] and P[y].
+	int temp = permutations[smalestX];
+	permutations[smalestX] = permutations[smalestY];
+	permutations[smalestY] = temp;
+
+	// 4.Reverse P[x + 1 ..n].
+	std::reverse(std::begin(permutations) + smalestX + 1, std::end(permutations));
 }
 
 void setup(RenderWindow & app)
@@ -85,32 +117,33 @@ void setup(RenderWindow & app)
 	srand(time(0));
 
 	circle.setRadius(4);
-	circle.setOrigin(2, 2);
+	circle.setOrigin(4, 4);
 
 	// initialize with random positions
-	for (int i = 0; i < points.size(); i++)
+	for (int i = 0; i < positions.size(); i++)
 	{
 		// generate point middle height
-		points[i].x = bestPoints[i].x = rand() % app.getSize().x;
-		points[i].y = rand() % (app.getSize().y / 2); // middle top
-		bestPoints[i].y = points[i].y + app.getSize().y / 2; // middle down
+		positions[i].x = rand() % app.getSize().x;
+		positions[i].y = rand() % (app.getSize().y / 2);
 
-		// initialize permutations
-		permutations[i] = i;
+		// initialize permutations and best permutations
+		permutations[i] = bestPemutation[i] = i;
 	}
 
 	// calculate best distance for first time
-	for (int i = 0; i < points.size() - 1; i++)
-		bestDistance += getDistance(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+	for (int i = 0; i < positions.size() - 1; i++)
+		bestDistance += getDistance(positions[permutations[i]], positions[permutations[i + 1]]);
 }
 
-void draw(RenderWindow & app)
+void draw(RenderWindow & app, bool & finished)
 {
 	int tempDist = drawActualPoints(app); // draw points, and get distance
 
-	drawBestDistance(app); // draw best distance
+	drawBestPermutation(app); // draw best distance
 
 	if (tempDist < bestDistance) // if found a better distance, store it
-		storeBestDistance(tempDist, app.getSize().y / 2);
+		storeBestPermutation(tempDist);
+
+	permutate(finished);
 }
 
