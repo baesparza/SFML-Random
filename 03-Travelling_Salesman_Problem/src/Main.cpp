@@ -24,6 +24,8 @@ int main()
 			if (e.type == Event::Closed)
 				app.close();
 
+		app.clear();
+
 		draw(app);
 
 		app.display();
