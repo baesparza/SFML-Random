@@ -6,9 +6,11 @@
 using namespace sf;
 
 // point
-std::array<Vector2i, 5> points;
+std::array<Vector2f, 50> points;
 
 CircleShape circle;
+Vertex line[2];
+
 
 void setup(RenderWindow & app)
 {
@@ -32,4 +34,13 @@ void draw(RenderWindow & app)
 		circle.setPosition(points[i].x, points[i].y);
 		app.draw(circle);
 	}
+
+	// conect points with lines
+	for (int i = 0; i < points.size() - 1; i++)
+	{
+		line[0].position = {points[i].x, points[i].y};
+		line[1].position = {points[i + 1].x, points[i + 1].y};
+		app.draw(line, 2, Lines);
+	}
+
 }

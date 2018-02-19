@@ -12,7 +12,10 @@ const int SIZE = 800;
 
 int main()
 {
-	RenderWindow app(VideoMode(SIZE, SIZE), "Traversing Salesman Problem");
+	ContextSettings settings;
+	settings.antialiasingLevel = 8;
+
+	RenderWindow app(VideoMode(SIZE, SIZE), "Traversing Salesman Problem", Style::Default, settings);
 	app.setFramerateLimit(60);
 
 	setup(app);
