@@ -1,21 +1,23 @@
 #include <SFML\Graphics.hpp>
 #include <array>
+#include <iostream>
 
 using namespace sf;
 
 
-std::array<Star, 500> stars;
-
 CircleShape circle;
 
-float map(float val, float start, float end, float min, float max)
+// take one value in one range, and return its value in the second range
+float map(float num, float start1, float stop1, float start2, float stop2)
 {
-
+	float res = (num - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+	// std::cout << res << " = " << (num - start1) << " / " << (stop1 - start1) << " * " << (stop2 - start2) << " + " << start2 << std::endl;
+	return	res;
 }
 
 struct Star
 {
-	int x, y, z;
+	float x, y, z;
 
 	void star(RenderWindow & app)
 	{
@@ -24,21 +26,24 @@ struct Star
 		z = app.getSize().x;
 	}
 
-	void update()
+	void update(RenderWindow & app)
 	{
-
+		z--;
+		if (z < 1)
+			z = app.getSize().x;
 	}
 
 	void draw(RenderWindow & app)
 	{
 		float sx = map(x / z, 0, 1, 0, app.getSize().x);
 		float sy = map(y / z, 0, 1, 0, app.getSize().y);
-		//	circle.setRadius(s.z);
+		//circle.setRadius(2);
 		circle.setPosition(sx, sy);
 		app.draw(circle);
 	}
 };
 
+std::array<Star, 500> stars;
 
 void setup(RenderWindow & app)
 {
@@ -53,9 +58,9 @@ void setup(RenderWindow & app)
 
 void draw(RenderWindow & app)
 {
-	for (Star s : stars)
+	for (int i = 0; i < stars.size(); i++)
 	{
-		s.update();
-		s.draw(app);
+		stars[i].update(app);
+		stars[i].draw(app);
 	}
 }
