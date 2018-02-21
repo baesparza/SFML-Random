@@ -15,7 +15,6 @@
       <SubType>
       </SubType>
     </ClCompile>
-    <ClCompile Include="src\Source.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
