@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "03-Travelling_Salesman_Prob
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "04-Starfield", "04-Starfield\04-Starfield.vcxproj", "{93252CBB-D7C9-4C4B-97C8-A8A8E9A599AC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05-Fractal_Free", "05-Fractal_Free\05-Fractal_Free.vcxproj", "{171CBA96-88DF-4039-8132-15EF3D565499}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -33,6 +35,10 @@ Global
 		{93252CBB-D7C9-4C4B-97C8-A8A8E9A599AC}.Debug|x64.Build.0 = Debug|x64
 		{93252CBB-D7C9-4C4B-97C8-A8A8E9A599AC}.Release|x64.ActiveCfg = Release|x64
 		{93252CBB-D7C9-4C4B-97C8-A8A8E9A599AC}.Release|x64.Build.0 = Release|x64
+		{171CBA96-88DF-4039-8132-15EF3D565499}.Debug|x64.ActiveCfg = Debug|x64
+		{171CBA96-88DF-4039-8132-15EF3D565499}.Debug|x64.Build.0 = Debug|x64
+		{171CBA96-88DF-4039-8132-15EF3D565499}.Release|x64.ActiveCfg = Release|x64
+		{171CBA96-88DF-4039-8132-15EF3D565499}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
