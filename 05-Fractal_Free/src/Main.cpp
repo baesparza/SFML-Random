@@ -9,17 +9,24 @@ struct Tree
 	sf::Vector2f start, end;
 	float angle;
 
-	//	Tree *left, *right;
+	// Tree *left, *right;
 
 	Tree(sf::Vector2f strt, int alpha, int magnitude) :
 		start(strt)
 	{
-		angle  = alpha * PI / 180; // measured in radians
+		angle = alpha * PI / 180; // measured in radians
 
 		// calculate end
 		float end_x = magnitude * std::cos(angle);
 		float end_y = magnitude * std::sin(angle);
 		end = {start.x - end_x, start.y - end_y};
+	}
+
+	void show(sf::RenderWindow & app)
+	{
+		// line obj
+		sf::Vertex line[2] = {start, end};
+		app.draw(line, 2, sf::Lines);
 	}
 };
 
@@ -30,17 +37,11 @@ int main()
 	// main tree
 	Tree * root = new Tree(
 		//	sf::Vector2f{app.getSize().x / 2, app.getSize().y}, // beging center bottom
-		{400, 800},
+	{400, 800},
 		90,
 		400
 	);
 
-	// line obj
-	sf::Vertex line[2] =
-	{
-		root->start,
-		root->end
-	};
 
 	while (app.isOpen())
 	{
@@ -53,7 +54,7 @@ int main()
 		/////draw/////
 		app.clear();
 
-		app.draw(line, 2, sf::Lines);
+		root->show(app);
 
 		app.display();
 	}
