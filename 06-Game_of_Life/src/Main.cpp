@@ -3,7 +3,7 @@
 
 // options
 const int TS = 10;
-const int COL = 90, ROW = 90;
+const int COL = 50, ROW = 40;
 
 bool grid[ROW][COL];
 bool t_grid[ROW][COL];
@@ -47,12 +47,15 @@ int main()
 	srand(time(0));
 
 	sf::RenderWindow app(sf::VideoMode(TS * COL, TS * ROW), "Game of life");
-	app.setFramerateLimit(60);
+	app.setFramerateLimit(10);
 
 	// rectangle
 	sf::RectangleShape rectangle(sf::Vector2f(TS, TS));
 	rectangle.setOutlineColor(sf::Color::Black);
 	rectangle.setOutlineThickness(1);
+
+	// bool for pause
+	bool pause = false;
 
 	// initialize grid
 	for (int i = 0; i < ROW; i++)
@@ -68,10 +71,28 @@ int main()
 		{
 			if (e.type == sf::Event::Closed)
 				app.close();
+
+			// pause botttom
+			if (e.type == sf::Event::KeyPressed)
+				if (e.key.code == sf::Keyboard::Escape)
+					pause = (pause) ? false : true;
+
+			// pos
+			if (e.type == sf::Event::MouseButtonPressed)
+				if (e.key.code == sf::Mouse::Left)
+				{
+					sf::Vector2i pos;
+					pos = sf::Mouse::getPosition(app);
+					grid[pos.y / TS][pos.x / TS] = (grid[pos.y / TS][pos.x / TS]) ? false : true;
+
+				}
 		}
 
-		// update grid
-		updateGrid();
+
+
+		// update grid if not paused
+		if (!pause)
+			updateGrid();
 
 		/////draw/////
 		app.clear(sf::Color::White);
