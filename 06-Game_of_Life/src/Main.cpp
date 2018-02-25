@@ -3,7 +3,7 @@
 
 // options
 const int TS = 10;
-const int COL = 50, ROW = 40;
+const int COL = 90, ROW = 90;
 
 bool grid[ROW][COL];
 bool t_grid[ROW][COL];
