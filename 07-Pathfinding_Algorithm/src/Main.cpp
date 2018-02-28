@@ -16,10 +16,12 @@ public:
 	int x, y; // position
 	int f, g, h;
 	std::vector<Cell *> neighbors;
+	Cell * prev;
 public:
 	Cell(int i, int j) : x(j), y(i)
 	{
 		f = g = h = 0;
+		prev = nullptr;
 	}
 
 	void show(sf::RenderWindow & app, sf::Color color)
@@ -86,14 +88,14 @@ int main()
 	std::array<std::array<Cell *, COLS>, ROWS> grid;
 	for (int i = 0; i < grid.size(); i++)
 		for (int j = 0; j < grid[i].size(); j++)
-			grid[i][j] = (rand() % 10 < 5) ? nullptr : new Cell(i, j);
+			grid[i][j] = new Cell(i, j);// (rand() % 10 < 1) ? nullptr : new Cell(i, j);
 
-	grid[0][0] = new Cell(0, 0);
-	grid[ROWS - 1][COLS - 1] = new Cell(ROWS - 1, COLS - 1);
+	if (!grid[0][0]) grid[0][0] = new Cell(0, 0);
+	if (grid[ROWS - 1][COLS - 1]) grid[ROWS - 1][COLS - 1] = new Cell(ROWS - 1, COLS - 1);
 
 	/// start and end used in algorithm
 	Cell * start = grid[0][0];
-	Cell * end = grid[ROWS - 1][COLS - 1];
+	Cell * end = grid[3][3];
 
 	/// The set of nodes already evaluated
 	std::vector<Cell *> closedSet;
@@ -121,8 +123,10 @@ int main()
 
 		/// check if we are done
 		if (current == end)
+		{
 			std::cout << "DONE" << std::endl;
-
+			continue;
+		}
 		removeFromVector(openSet, current);
 		closedSet.push_back(current);
 
@@ -151,7 +155,7 @@ int main()
 
 			neighbor->h = heuristic(neighbor, end);
 			neighbor->f = neighbor->g + neighbor->h;
-
+			neighbor->prev = current;
 		}
 
 		//////////draw//////////
@@ -164,13 +168,20 @@ int main()
 				else
 				{
 					rectangle.setPosition(j * TS, i * TS);
-					rectangle.setFillColor(sf::Color::Blue);
+					rectangle.setFillColor(sf::Color::Black);
 					app.draw(rectangle);
 				}
 
 		// draw openset and closet
 		for (Cell * c : closedSet) c->show(app, sf::Color::Red);
 		for (Cell * c : openSet) c->show(app, sf::Color::Green);
+
+		Cell * curr = current;
+		while (curr)
+		{
+			curr->show(app, sf::Color::Blue);
+			curr = curr->prev;
+		}
 
 		app.display();
 	}
