@@ -3,9 +3,10 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
-const int COLS = 5;
-const int ROWS = 6;
-const int TS = 60;
+// options
+const int COLS = 50;
+const int ROWS = 60;
+const int TS = 10;
 
 sf::RectangleShape rectangle(sf::Vector2f(TS - 1, TS - 1));
 
@@ -14,6 +15,7 @@ class Cell
 public:
 	int x, y; // position
 	int f, g, h;
+	std::vector<Cell *> neighbors;
 public:
 	Cell(int i, int j) : x(j), y(i)
 	{
@@ -32,6 +34,15 @@ public:
 		return x == temp.x && y == temp.y;
 	}
 
+	void calculateNeighbors(std::array<std::array<Cell *, COLS>, ROWS> & grid)
+	{
+		int i = y, j = x;
+		if (i + 1 < ROWS) neighbors.push_back(grid[i + 1][j]); // down
+		if (i - 1 >= 0) neighbors.push_back(grid[i - 1][j]); // top
+		if (j + 1 < COLS) neighbors.push_back(grid[i][j + 1]); // right
+		if (j - 1 >= 0) neighbors.push_back(grid[i][j - 1]); // left
+	}
+
 	~Cell()
 	{
 		std::cout << "destroyed" << "\n";
@@ -46,6 +57,19 @@ void removeFromVector(std::vector<Cell *> & vector, Cell * element)
 			vector.erase(vector.begin() + i);
 			return;
 		}
+}
+
+bool checkIfContains(std::vector<Cell *> & vector, Cell * element)
+{
+	for (Cell * v : vector)
+		if (v == element)
+			return true;
+	return false;
+}
+
+int heuristic(Cell * e1, Cell * e2)
+{
+	return std::sqrt(std::pow(e2->x - e1->x, 2) + std::pow(e2->y - e1->y, 2));
 }
 
 
@@ -97,8 +121,37 @@ int main()
 		if (current == end)
 			std::cout << "DONE" << std::endl;
 
-		//removeFromVector(openSet, current);
+		removeFromVector(openSet, current);
 		closedSet.push_back(current);
+
+		current->calculateNeighbors(grid);
+		for (Cell * neighbor : current->neighbors)
+		{
+			/// Ignore the neighbor which is already evaluated.
+			if (checkIfContains(closedSet, neighbor))
+				continue;
+
+			/// The distance from start to a neighbor
+			/// the "dist_between" function may vary as per the solution requirements.
+			int tentative_gScore = current->g + 1;
+			if (checkIfContains(openSet, neighbor)) // has been evaluated
+			{
+				if (tentative_gScore < neighbor->g) // found a better score
+					neighbor->g = tentative_gScore;
+			}
+			else
+			{
+				/// Discover a new node
+				openSet.push_back(neighbor);
+				neighbor->g = tentative_gScore;
+			}
+
+
+			neighbor->h = heuristic(neighbor, end);
+			neighbor->f = neighbor->g + neighbor->h;
+
+		}
+
 
 		//////////draw//////////
 		app.clear();
@@ -114,5 +167,6 @@ int main()
 		app.display();
 	}
 
+	//	std::cin.get();
 	return 0;
 }
