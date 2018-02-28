@@ -37,10 +37,10 @@ public:
 	void calculateNeighbors(std::array<std::array<Cell *, COLS>, ROWS> & grid)
 	{
 		int i = y, j = x;
-		if (i + 1 < ROWS) neighbors.push_back(grid[i + 1][j]); // down
-		if (i - 1 >= 0) neighbors.push_back(grid[i - 1][j]); // top
-		if (j + 1 < COLS) neighbors.push_back(grid[i][j + 1]); // right
-		if (j - 1 >= 0) neighbors.push_back(grid[i][j - 1]); // left
+		if (i + 1 < ROWS) if (grid[i + 1][j]) neighbors.push_back(grid[i + 1][j]); // down
+		if (i - 1 >= 0)if (grid[i - 1][j]) neighbors.push_back(grid[i - 1][j]); // top
+		if (j + 1 < COLS)if (grid[i][j + 1]) neighbors.push_back(grid[i][j + 1]); // right
+		if (j - 1 >= 0) if (grid[i][j - 1])neighbors.push_back(grid[i][j - 1]); // left
 	}
 
 	~Cell()
@@ -75,7 +75,7 @@ int heuristic(Cell * e1, Cell * e2)
 
 int main()
 {
-	//	srand(time(0));
+	srand(time(0));
 	sf::RenderWindow app(sf::VideoMode(COLS * TS, ROWS * TS), "Pathfinding Algorithm");
 
 	// rectangle
@@ -86,7 +86,10 @@ int main()
 	std::array<std::array<Cell *, COLS>, ROWS> grid;
 	for (int i = 0; i < grid.size(); i++)
 		for (int j = 0; j < grid[i].size(); j++)
-			grid[i][j] = new Cell(i, j);
+			grid[i][j] = (rand() % 10 < 5) ? nullptr : new Cell(i, j);
+
+	grid[0][0] = new Cell(0, 0);
+	grid[ROWS - 1][COLS - 1] = new Cell(ROWS - 1, COLS - 1);
 
 	/// start and end used in algorithm
 	Cell * start = grid[0][0];
@@ -106,7 +109,6 @@ int main()
 		while (app.pollEvent(e))
 			if (e.type == sf::Event::Closed)
 				app.close();
-
 
 		/// algorithm no solution
 		if (openSet.size() == 0) continue;
@@ -152,13 +154,19 @@ int main()
 
 		}
 
-
 		//////////draw//////////
 		app.clear();
 		// draw all grid
 		for (int i = 0; i < grid.size(); i++)
 			for (int j = 0; j < grid[i].size(); j++)
-				grid[i][j]->show(app, sf::Color::White);
+				if (grid[i][j])
+					grid[i][j]->show(app, sf::Color::White);
+				else
+				{
+					rectangle.setPosition(j * TS, i * TS);
+					rectangle.setFillColor(sf::Color::Blue);
+					app.draw(rectangle);
+				}
 
 		// draw openset and closet
 		for (Cell * c : closedSet) c->show(app, sf::Color::Red);
