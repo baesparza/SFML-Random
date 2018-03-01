@@ -1,4 +1,3 @@
-#include <iostream>
 #include <array>
 #include <vector>
 #include <SFML/Graphics.hpp>
@@ -6,58 +5,51 @@
 // options
 const int COLS = 40;
 const int ROWS = 40;
-const int TS = 10;
+const int TS = 15;
 
-sf::RectangleShape rectangle(sf::Vector2f(TS - 1, TS - 1));
+sf::CircleShape circle(TS * 0.4);
 
 class Cell
 {
 public:
-	int x, y; // position
+	int i, j; // position
 	int fScore, gScore, heuristic;
 	std::vector<Cell *> neighbors;
 	Cell * prev;
 public:
-	Cell(int i, int j) : x(j), y(i)
+	Cell(int i, int j) : j(j), i(i)
 	{
 		fScore = gScore = heuristic = 0;
 		prev = nullptr;
 	}
 
-	void show(sf::RenderWindow & app, sf::Color color)
-	{
-		rectangle.setPosition(x*TS, y*TS);
-		rectangle.setFillColor(color);
-		app.draw(rectangle);
-	}
-
 	bool operator==(const Cell & temp)
 	{
-		return x == temp.x && y == temp.y;
+		return j == temp.j && i == temp.i;
 	}
 
 	void calculateNeighbors(std::array<std::array<Cell *, COLS>, ROWS> & grid)
 	{
-		if (y + 1 < ROWS) // down
-			neighbors.push_back(grid[y + 1][x]);
-		if (y - 1 >= 0)	// top
-			neighbors.push_back(grid[y - 1][x]);
-		if (x + 1 < COLS) // right
-			neighbors.push_back(grid[y][x + 1]);
-		if (x - 1 >= 0)	// left
-			neighbors.push_back(grid[y][x - 1]);
-		if (y + 1 < ROWS && x + 1 < COLS)
-			if (grid[y + 1][x] || grid[y][x + 1])
-				neighbors.push_back(grid[y + 1][x + 1]);
-		if (y - 1 >= 0 && x - 1 >= 0)
-			if (grid[y - 1][x] || grid[y][x - 1])
-				neighbors.push_back(grid[y - 1][x - 1]);
-		if (y + 1 < ROWS && x - 1 >= 0)
-			if (grid[y + 1][x] || grid[y][x - 1])
-				neighbors.push_back(grid[y + 1][x - 1]);
-		if (y - 1 >= ROWS && x + 1 < COLS)
-			if (grid[y - 1][x] || grid[y][x + 1])
-				neighbors.push_back(grid[y - 1][x + 1]);
+		if (i + 1 < ROWS) // down
+			neighbors.push_back(grid[i + 1][j]);
+		if (i - 1 >= 0)	// top
+			neighbors.push_back(grid[i - 1][j]);
+		if (j + 1 < COLS) // right
+			neighbors.push_back(grid[i][j + 1]);
+		if (j - 1 >= 0)	// left
+			neighbors.push_back(grid[i][j - 1]);
+		if (i + 1 < ROWS && j + 1 < COLS)
+			if (grid[i + 1][j] || grid[i][j + 1])
+				neighbors.push_back(grid[i + 1][j + 1]);
+		if (i - 1 >= 0 && j - 1 >= 0)
+			if (grid[i - 1][j] || grid[i][j - 1])
+				neighbors.push_back(grid[i - 1][j - 1]);
+		if (i + 1 < ROWS && j - 1 >= 0)
+			if (grid[i + 1][j] || grid[i][j - 1])
+				neighbors.push_back(grid[i + 1][j - 1]);
+		if (i - 1 >= ROWS && j + 1 < COLS)
+			if (grid[i - 1][j] || grid[i][j + 1])
+				neighbors.push_back(grid[i - 1][j + 1]);
 
 		// remove nullptr`s
 		for (int i = neighbors.size() - 1; i >= 0; i--)
@@ -65,10 +57,7 @@ public:
 				neighbors.erase(neighbors.begin() + i);
 	}
 
-	~Cell()
-	{
-		std::cout << "destroyed" << "\n";
-	}
+	~Cell() { }
 };
 
 Cell * getLowest(std::vector<Cell *> & set)
@@ -100,7 +89,7 @@ bool checkIfContains(std::vector<Cell *> & vector, Cell * element)
 
 int heuristic(Cell * e1, Cell * e2)
 {
-	return std::sqrt(std::pow(e2->x - e1->x, 2) + std::pow(e2->y - e1->y, 2));
+	return std::sqrt(std::pow(e2->j - e1->j, 2) + std::pow(e2->i - e1->i, 2));
 }
 
 
@@ -109,18 +98,20 @@ int main()
 	srand(time(0));
 	sf::RenderWindow app(sf::VideoMode(COLS * TS, ROWS * TS), "Pathfinding Algorithm");
 
-	// rectangle
-	rectangle.setOutlineColor(sf::Color::Black);
-	rectangle.setOutlineThickness(1);
-
-	bool keepSearch = false;
+	// circle
+	circle.setFillColor(sf::Color::Black);
+	circle.setPointCount(100);
+	// line
+	sf::RectangleShape line(sf::Vector2f(TS, 4));
+	line.setFillColor(sf::Color::Cyan);
 
 	// initialize with positions
 	std::array<std::array<Cell *, COLS>, ROWS> grid;
 	for (int i = 0; i < grid.size(); i++)
 		for (int j = 0; j < grid[i].size(); j++)
-			grid[i][j] = (rand() % 10 < 4) ? nullptr : new Cell(i, j); // 30 percent of obstacles
+			grid[i][j] = (rand() % 10 < 3) ? nullptr : new Cell(i, j); // 30 percent of obstacles
 
+	// force start & end to be valid spots
 	if (!grid[0][0]) grid[0][0] = new Cell(0, 0);
 	if (!grid[ROWS - 1][COLS - 1]) grid[ROWS - 1][COLS - 1] = new Cell(ROWS - 1, COLS - 1);
 
@@ -150,12 +141,9 @@ int main()
 		Cell * current = getLowest(openSet);
 
 		/// check if we are done
-		if (keepSearch)
-		{
-			//	std::cout << "DONE" << std::endl;
+		if (current == end)
 			continue;
-		}
-		keepSearch = (current == end);
+
 		removeFromVector(openSet, current);
 		closedSet.push_back(current);
 
@@ -172,49 +160,57 @@ int main()
 			if (checkIfContains(openSet, neighbor)) // has been evaluated
 			{
 				if (tentative_gScore < neighbor->gScore) // found a better score
+				{
 					neighbor->gScore = tentative_gScore;
+
+
+
+
+
+
+					neighbor->heuristic = heuristic(neighbor, end);
+					neighbor->fScore = neighbor->gScore + neighbor->heuristic;
+					neighbor->prev = current;
+				}
 			}
 			else
 			{
 				/// Discover a new node
 				openSet.push_back(neighbor);
 				neighbor->gScore = tentative_gScore;
+
+
+
+
+				neighbor->heuristic = heuristic(neighbor, end);
+				neighbor->fScore = neighbor->gScore + neighbor->heuristic;
+				neighbor->prev = current;
 			}
-
-
-			neighbor->heuristic = heuristic(neighbor, end);
-			neighbor->fScore = neighbor->gScore + neighbor->heuristic;
-			neighbor->prev = current;
 		}
 
 		//////////draw//////////
-		app.clear();
+		app.clear(sf::Color::White);
 		// draw all grid
 		for (int i = 0; i < grid.size(); i++)
 			for (int j = 0; j < grid[i].size(); j++)
-				if (grid[i][j])
-					grid[i][j]->show(app, sf::Color::White);
-				else
+				if (!grid[i][j])
 				{
-					rectangle.setPosition(j * TS, i * TS);
-					rectangle.setFillColor(sf::Color::Black);
-					app.draw(rectangle);
+					circle.setPosition(j * TS, i * TS);
+					circle.setFillColor(sf::Color::Black);
+					app.draw(circle);
 				}
 
-		// draw openset and closet
-		for (Cell * c : closedSet) c->show(app, sf::Color::Red);
-		for (Cell * c : openSet) c->show(app, sf::Color::Green);
 
-		Cell * curr = current;
-		while (curr)
+		while (current)
 		{
-			curr->show(app, sf::Color::Blue);
-			curr = curr->prev;
+			// line.rotate(45);
+			line.setPosition(current->j * TS + TS / 2, current->i * TS + TS / 2);
+			current = current->prev;
+			app.draw(line);
 		}
 
 		app.display();
 	}
 
-	//	std::cin.get();
 	return 0;
 }
