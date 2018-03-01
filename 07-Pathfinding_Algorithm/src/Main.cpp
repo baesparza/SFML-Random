@@ -127,8 +127,11 @@ int main()
 		// window open
 		sf::Event e;
 		while (app.pollEvent(e))
+		{
 			if (e.type == sf::Event::Closed)
 				app.close();
+		}
+
 
 		/// algorithm no solution
 		if (openSet.size() == 0) continue;
@@ -158,12 +161,6 @@ int main()
 				if (tentative_gScore < neighbor->gScore) // found a better score
 				{
 					neighbor->gScore = tentative_gScore;
-
-
-
-
-
-
 					neighbor->heuristic = heuristic(neighbor, end);
 					neighbor->fScore = neighbor->gScore + neighbor->heuristic;
 					neighbor->prev = current;
@@ -174,10 +171,6 @@ int main()
 				/// Discover a new node
 				openSet.push_back(neighbor);
 				neighbor->gScore = tentative_gScore;
-
-
-
-
 				neighbor->heuristic = heuristic(neighbor, end);
 				neighbor->fScore = neighbor->gScore + neighbor->heuristic;
 				neighbor->prev = current;
@@ -202,7 +195,7 @@ int main()
 		while (current)
 		{
 			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 + 2, current->i * TS + TS / 2), sf::Color::Cyan));
-			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 - 2, current->i * TS + TS / 2 + 2), sf::Color::Cyan));
+			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 - 2, current->i * TS + TS / 2 + 1), sf::Color::Cyan));
 			current = current->prev;
 		}
 		app.draw(lines);
