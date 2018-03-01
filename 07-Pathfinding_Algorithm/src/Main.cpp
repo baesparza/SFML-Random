@@ -3,9 +3,9 @@
 #include <SFML/Graphics.hpp>
 
 // options
-const int COLS = 40;
-const int ROWS = 40;
-const int TS = 15;
+const int COLS = 90;
+const int ROWS = 90;
+const int TS = 10;
 
 sf::CircleShape circle(TS * 0.4);
 
@@ -60,13 +60,12 @@ public:
 	~Cell() { }
 };
 
-Cell * getLowest(std::vector<Cell *> & set)
+Cell * getLowest(std::vector<Cell *> & vector)
 {
-	Cell * best = set[0];
-	for (int i = 0; i < set.size(); i++)
-		if (set[i]->fScore < best->fScore)
-			best = set[i];
-	return best;
+	std::sort(vector.begin(), vector.end(), [](Cell * a, Cell * b) {
+		return a->fScore < b->fScore;
+	});
+	return vector[0];
 }
 
 void removeFromVector(std::vector<Cell *> & vector, Cell * element)
@@ -186,7 +185,7 @@ int main()
 		}
 
 		//////////draw//////////
-		app.clear(sf::Color::Magenta);
+		app.clear(sf::Color::White);
 
 		// draw all grid
 		for (int i = 0; i < grid.size(); i++)
@@ -202,14 +201,8 @@ int main()
 		lines.setPrimitiveType(sf::PrimitiveType::TrianglesStrip);
 		while (current)
 		{
-			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 + 1, current->i * TS + TS / 2 - 1), sf::Color::Green));
-			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 - 1, current->i * TS + TS / 2 + 1), sf::Color::Green));
-			//	// line
-			//	sf::RectangleShape line(sf::Vector2f(TS, 5));
-			//	line.setFillColor(sf::Color::Cyan);
-			//	line.rotate(45);
-			//	line.setPosition(current->j * TS + TS / 2, current->i * TS + TS / 2);
-			//	app.draw(line);
+			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 + 2, current->i * TS + TS / 2), sf::Color::Cyan));
+			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 - 2, current->i * TS + TS / 2 + 2), sf::Color::Cyan));
 			current = current->prev;
 		}
 		app.draw(lines);
