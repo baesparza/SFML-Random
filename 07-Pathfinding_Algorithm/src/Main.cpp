@@ -101,9 +101,6 @@ int main()
 	// circle
 	circle.setFillColor(sf::Color::Black);
 	circle.setPointCount(100);
-	// line
-	sf::RectangleShape line(sf::Vector2f(TS, 4));
-	line.setFillColor(sf::Color::Cyan);
 
 	// initialize with positions
 	std::array<std::array<Cell *, COLS>, ROWS> grid;
@@ -189,7 +186,8 @@ int main()
 		}
 
 		//////////draw//////////
-		app.clear(sf::Color::White);
+		app.clear(sf::Color::Magenta);
+
 		// draw all grid
 		for (int i = 0; i < grid.size(); i++)
 			for (int j = 0; j < grid[i].size(); j++)
@@ -200,14 +198,21 @@ int main()
 					app.draw(circle);
 				}
 
-
+		sf::VertexArray lines;
+		lines.setPrimitiveType(sf::PrimitiveType::TrianglesStrip);
 		while (current)
 		{
-			// line.rotate(45);
-			line.setPosition(current->j * TS + TS / 2, current->i * TS + TS / 2);
+			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 + 1, current->i * TS + TS / 2 - 1), sf::Color::Green));
+			lines.append(sf::Vertex(sf::Vector2f(current->j * TS + TS / 2 - 1, current->i * TS + TS / 2 + 1), sf::Color::Green));
+			//	// line
+			//	sf::RectangleShape line(sf::Vector2f(TS, 5));
+			//	line.setFillColor(sf::Color::Cyan);
+			//	line.rotate(45);
+			//	line.setPosition(current->j * TS + TS / 2, current->i * TS + TS / 2);
+			//	app.draw(line);
 			current = current->prev;
-			app.draw(line);
 		}
+		app.draw(lines);
 
 		app.display();
 	}
