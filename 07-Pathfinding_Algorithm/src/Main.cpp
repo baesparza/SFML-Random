@@ -4,8 +4,8 @@
 #include <SFML/Graphics.hpp>
 
 // options
-const int COLS = 50;
-const int ROWS = 60;
+const int COLS = 40;
+const int ROWS = 40;
 const int TS = 10;
 
 sf::RectangleShape rectangle(sf::Vector2f(TS - 1, TS - 1));
@@ -14,13 +14,13 @@ class Cell
 {
 public:
 	int x, y; // position
-	int f, g, h;
+	int fScore, gScore, heuristic;
 	std::vector<Cell *> neighbors;
 	Cell * prev;
 public:
 	Cell(int i, int j) : x(j), y(i)
 	{
-		f = g = h = 0;
+		fScore = gScore = heuristic = 0;
 		prev = nullptr;
 	}
 
@@ -38,11 +38,31 @@ public:
 
 	void calculateNeighbors(std::array<std::array<Cell *, COLS>, ROWS> & grid)
 	{
-		int i = y, j = x;
-		if (i + 1 < ROWS) if (grid[i + 1][j]) neighbors.push_back(grid[i + 1][j]); // down
-		if (i - 1 >= 0)if (grid[i - 1][j]) neighbors.push_back(grid[i - 1][j]); // top
-		if (j + 1 < COLS)if (grid[i][j + 1]) neighbors.push_back(grid[i][j + 1]); // right
-		if (j - 1 >= 0) if (grid[i][j - 1])neighbors.push_back(grid[i][j - 1]); // left
+		if (y + 1 < ROWS) // down
+			neighbors.push_back(grid[y + 1][x]);
+		if (y - 1 >= 0)	// top
+			neighbors.push_back(grid[y - 1][x]);
+		if (x + 1 < COLS) // right
+			neighbors.push_back(grid[y][x + 1]);
+		if (x - 1 >= 0)	// left
+			neighbors.push_back(grid[y][x - 1]);
+		if (y + 1 < ROWS && x + 1 < COLS)
+			if (grid[y + 1][x] || grid[y][x + 1])
+				neighbors.push_back(grid[y + 1][x + 1]);
+		if (y - 1 >= 0 && x - 1 >= 0)
+			if (grid[y - 1][x] || grid[y][x - 1])
+				neighbors.push_back(grid[y - 1][x - 1]);
+		if (y + 1 < ROWS && x - 1 >= 0)
+			if (grid[y + 1][x] || grid[y][x - 1])
+				neighbors.push_back(grid[y + 1][x - 1]);
+		if (y - 1 >= ROWS && x + 1 < COLS)
+			if (grid[y - 1][x] || grid[y][x + 1])
+				neighbors.push_back(grid[y - 1][x + 1]);
+
+		// remove nullptr`s
+		for (int i = neighbors.size() - 1; i >= 0; i--)
+			if (!neighbors[i])
+				neighbors.erase(neighbors.begin() + i);
 	}
 
 	~Cell()
@@ -50,6 +70,15 @@ public:
 		std::cout << "destroyed" << "\n";
 	}
 };
+
+Cell * getLowest(std::vector<Cell *> & set)
+{
+	Cell * best = set[0];
+	for (int i = 0; i < set.size(); i++)
+		if (set[i]->fScore < best->fScore)
+			best = set[i];
+	return best;
+}
 
 void removeFromVector(std::vector<Cell *> & vector, Cell * element)
 {
@@ -84,18 +113,20 @@ int main()
 	rectangle.setOutlineColor(sf::Color::Black);
 	rectangle.setOutlineThickness(1);
 
+	bool keepSearch = false;
+
 	// initialize with positions
 	std::array<std::array<Cell *, COLS>, ROWS> grid;
 	for (int i = 0; i < grid.size(); i++)
 		for (int j = 0; j < grid[i].size(); j++)
-			grid[i][j] = new Cell(i, j);// (rand() % 10 < 1) ? nullptr : new Cell(i, j);
+			grid[i][j] = (rand() % 10 < 4) ? nullptr : new Cell(i, j); // 30 percent of obstacles
 
 	if (!grid[0][0]) grid[0][0] = new Cell(0, 0);
-	if (grid[ROWS - 1][COLS - 1]) grid[ROWS - 1][COLS - 1] = new Cell(ROWS - 1, COLS - 1);
+	if (!grid[ROWS - 1][COLS - 1]) grid[ROWS - 1][COLS - 1] = new Cell(ROWS - 1, COLS - 1);
 
 	/// start and end used in algorithm
 	Cell * start = grid[0][0];
-	Cell * end = grid[3][3];
+	Cell * end = grid[ROWS - 1][COLS - 1];
 
 	/// The set of nodes already evaluated
 	std::vector<Cell *> closedSet;
@@ -116,17 +147,15 @@ int main()
 		if (openSet.size() == 0) continue;
 
 		/// the node in openSet having the lowest fScore[] value
-		Cell * current = openSet[0];
-		for (int i = 0; i < openSet.size(); i++)
-			if (openSet[i]->f < current->f)
-				current = openSet[i];
+		Cell * current = getLowest(openSet);
 
 		/// check if we are done
-		if (current == end)
+		if (keepSearch)
 		{
-			std::cout << "DONE" << std::endl;
+			//	std::cout << "DONE" << std::endl;
 			continue;
 		}
+		keepSearch = (current == end);
 		removeFromVector(openSet, current);
 		closedSet.push_back(current);
 
@@ -139,22 +168,22 @@ int main()
 
 			/// The distance from start to a neighbor
 			/// the "dist_between" function may vary as per the solution requirements.
-			int tentative_gScore = current->g + 1;
+			int tentative_gScore = current->gScore + 1;
 			if (checkIfContains(openSet, neighbor)) // has been evaluated
 			{
-				if (tentative_gScore < neighbor->g) // found a better score
-					neighbor->g = tentative_gScore;
+				if (tentative_gScore < neighbor->gScore) // found a better score
+					neighbor->gScore = tentative_gScore;
 			}
 			else
 			{
 				/// Discover a new node
 				openSet.push_back(neighbor);
-				neighbor->g = tentative_gScore;
+				neighbor->gScore = tentative_gScore;
 			}
 
 
-			neighbor->h = heuristic(neighbor, end);
-			neighbor->f = neighbor->g + neighbor->h;
+			neighbor->heuristic = heuristic(neighbor, end);
+			neighbor->fScore = neighbor->gScore + neighbor->heuristic;
 			neighbor->prev = current;
 		}
 
